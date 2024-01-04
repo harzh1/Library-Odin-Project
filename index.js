@@ -53,16 +53,77 @@ function buildTable(data) {
   }
 }
 
+const fform = document.getElementById("myForm");
+const ftitle = document.getElementById("title");
+const fauthor = document.getElementById("author");
+const fpages = document.getElementById("pages");
+const titleError = document.querySelector("#title + span.error");
+
+fform.addEventListener("submit", addBookToLibraryFromForm);
+
+ftitle.addEventListener("input", (event) => {
+  if (ftitle.validity.valid) {
+    titleError.textContent = ""; // Reset the content of the message
+    titleError.className = "error"; // Reset the visual state of the message
+  } else {
+    showError(ftitle);
+  }
+});
+
+fauthor.addEventListener("input", (event) => {
+  if (fauthor.validity.valid) {
+    authorError.textContent = ""; // Reset the content of the message
+    authorError.className = "error"; // Reset the visual state of the message
+  } else {
+    showError(fauthor);
+  }
+});
+
+fpages.addEventListener("input", (event) => {
+  if (fpages.validity.valid) {
+    pagesError.textContent = ""; // Reset the content of the message
+    pagesError.className = "error"; // Reset the visual state of the message
+  } else {
+    showError(fpages);
+  }
+});
+
+function showError(item) {
+  const itemError = document.querySelector(`#${item.id} + span.error`);
+  if (item.validity.valueMissing) {
+    // If the field is empty,
+    // display the following error message.
+    itemError.textContent = `You need to enter an ${item.name}.`;
+  } else if (item.validity.typeMismatch) {
+    // If the field doesn't contain an title address,
+    // display the following error message.
+    itemError.textContent = "Entered value needs to be an title address.";
+  } else if (item.validity.tooShort) {
+    // If the data is too short,
+    // display the following error message.
+    itemError.textContent = `${item.name} should be at least ${item.minLength} characters; you entered ${item.value.length}.`;
+  }
+  itemError.className = "error active";
+}
+
 function addBookToLibraryFromForm(event) {
-  event.preventDefault(); // Prevent the form from submitting and refreshing the page
+  // Prevent the form from submitting and refreshing the page
+  event.preventDefault();
 
   var form = document.getElementById("myForm");
-  var title = document.getElementById("ftitle").value;
-  var author = document.getElementById("fauthor").value;
-  var pages = document.getElementById("fpages").value;
-  var selectedValue = document.querySelector(
-    'input[name="readForm"]:checked'
-  ).value;
+
+  if (!form.checkValidity()) {
+    // If the form is not valid, display the validation message and stop the function
+    form.reportValidity();
+    return;
+  }
+
+  var title = document.getElementById("title").value;
+  var author = document.getElementById("author").value;
+  var pages = document.getElementById("pages").value;
+  var selectedRadio = document.querySelector('input[name="readForm"]:checked');
+
+  var selectedValue = selectedRadio ? selectedRadio.value : "NO";
   var read = selectedValue === "YES" ? true : false;
 
   addBookToLibrary(title, author, pages, read);
